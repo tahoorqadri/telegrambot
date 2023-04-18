@@ -5,9 +5,19 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 print('Starting up bot...')
-
+namedict={}
 TOKEN: Final = '6223343604:AAEFmhEgzmKTEuQowDgX7LwBTpE92ajfHIM'
 BOT_USERNAME: Final = '@testnitsri_bot'
+
+
+"""async def leaderboard_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    leaderboard = sorted(namedict.items(), key=lambda x: x[1], reverse=True)  # Sort the dictionary by streaks in descending order
+    leaderboard_text = 'Leaderboard:\n'
+    for index, (name, streak) in enumerate(leaderboard, start=1):
+        leaderboard_text += f'{index}. {name}: {streak} days\n'
+    await update.message.reply_text(leaderboard_text)"""
+
+
 
 
 # Lets us use the /start command
@@ -35,10 +45,23 @@ def handle_response(text: str,update) -> str:
         return 'Hey there!'
 
     if 'how are you' in processed:
-        return 'I\'m good!'
+        return 'I\'m good thanks!'
+    
+    if 'dddddd' in processed:
+        print(namedict)
+        return 'I\'m good thanks!'
+    
+    if 'i have completed' in processed:
+        if update.message.from_user.first_name not in namedict:
+            return f'{update.message.from_user.first_name}, you have not registered!'
+        namedict[update.message.from_user.first_name]+=1
+        return f'You are on a streak of {namedict[update.message.from_user.first_name]} days!'
 
     if 'register' in processed:
-        return f'Sucessfully {update.message.from_user.first_name} registered!'
+        if update.message.from_user.first_name in namedict:
+            return f'{update.message.from_user.first_name}, you have already registered!'
+        namedict[update.message.from_user.first_name]=0
+        return f'{update.message.from_user.first_name}, you have successfully registered!'
 
     return 'I don\'t understand'
 
@@ -90,3 +113,6 @@ if __name__ == '__main__':
     print('Polling...')
     # Run the bot
     app.run_polling(poll_interval=5)
+    
+
+   """ app.add_handler(CommandHandler('leaderboard', leaderboard_command))"""
