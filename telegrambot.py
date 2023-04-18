@@ -47,9 +47,12 @@ def handle_response(text: str,update) -> str:
     if 'how are you' in processed:
         return 'I\'m good thanks!'
     
-    if 'dddddd' in processed:
-        print(namedict)
-        return 'I\'m good thanks!'
+    if 'leaderboard' in processed:
+        leaderboard = sorted(namedict.items(), key=lambda x: x[1], reverse=True)
+        leaderboard_text = 'Leaderboard:\n'
+        for index, (name, streak) in enumerate(leaderboard, start=1):
+            leaderboard_text += f'{index}. {name}: {streak} days\n'
+        return leaderboard_text
     
     if 'i have completed' in processed:
         if update.message.from_user.first_name not in namedict:
@@ -115,4 +118,4 @@ if __name__ == '__main__':
     app.run_polling(poll_interval=5)
     
 
-   """ app.add_handler(CommandHandler('leaderboard', leaderboard_command))"""
+
