@@ -4,6 +4,36 @@ from typing import Final
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
+
+
+
+import asyncio
+import datetime
+
+# Initialize the daily_count
+daily_count = 1
+
+# Main loop
+async def main_loop():
+    global daily_count
+    while True:
+        # Get the current date and time
+        now = datetime.datetime.now()
+
+        # Check if the current time is after 5 minutes
+        if now.time() >= datetime.time(now.hour, (now.minute // 5) * 5):
+            # Reset the daily_count to 0
+            daily_count = 0
+
+        # Sleep for 1 minute (60 seconds)
+        await asyncio.sleep(60)
+
+# Start the main loop as an asynchronous task
+async def main():
+    await main_loop()
+
+
+
 # pip install gspread
 import gspread
 
@@ -63,10 +93,22 @@ def handle_response(text: str,update) -> str:
         return leaderboard_text
     
     if 'i have completed' in processed:
-        if update.message.from_user.first_name not in namedict:
+        for i in range(len(wks.get("B1:B70"))):
+            if wks.get("B1:B70")[i][0]==update.message.from_user.first_name:
+                tempid=i
+                wks.update_cell(tempid+1, 3, int(wks.acell(f'C{tempid+1}').value)+10)
+                wks.update_cell(tempid+1, 4, int(wks.acell(f'E{tempid+1}').value)+1)
+                tempda=wks.acell(f'E{tempid+1}').value
+                return f'{update.message.from_user.first_name}, you are on a {tempda} days streak!'
+        return f'{update.message.from_user.first_name}, you have not registered yet!'    
+        
+        
+        
+        
+        """if update.message.from_user.first_name not in namedict:
             return f'{update.message.from_user.first_name}, you have not registered!'
         namedict[update.message.from_user.first_name]+=1
-        return f'You are on a streak of {namedict[update.message.from_user.first_name]} days!'
+        return f'You are on a streak of {namedict[update.message.from_user.first_name]} days!'"""
 
     """if 'register' in processed:
         if update.message.from_user.first_name in namedict:
@@ -140,3 +182,5 @@ if __name__ == '__main__':
     
 
 
+# Run the main loop indefinitely
+asyncio.run(main())
