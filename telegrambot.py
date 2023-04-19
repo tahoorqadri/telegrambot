@@ -4,6 +4,14 @@ from typing import Final
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
+# pip install gspread
+import gspread
+
+# google sheet API key and worksheet integration
+sa = gspread.service_account(filename="service_account.json")
+sh = sa.open("telegrambot")
+wks = sh.worksheet("Sheet1")
+
 print('Starting up bot...')
 namedict={}
 TOKEN: Final = '6223343604:AAEFmhEgzmKTEuQowDgX7LwBTpE92ajfHIM'
@@ -60,11 +68,24 @@ def handle_response(text: str,update) -> str:
         namedict[update.message.from_user.first_name]+=1
         return f'You are on a streak of {namedict[update.message.from_user.first_name]} days!'
 
-    if 'register' in processed:
+    """if 'register' in processed:
         if update.message.from_user.first_name in namedict:
             return f'{update.message.from_user.first_name}, you have already registered!'
-        namedict[update.message.from_user.first_name]=0
+        namedict[update.message.from_user.first_name]=0      
+        return f'{update.message.from_user.first_name}, you have successfully registered!'"""
+    
+    if 'register' in processed:
+        
+        for i in range(len(wks.get("B1:B70"))):
+            if wks.get("B1:B70")[i][0]==update.message.from_user.first_name:
+                return f'{update.message.from_user.first_name}, you have already registered!'
+        wks.update_cell(len(wks.get("B1:B70"))+1, 2, update.message.from_user.first_name)
         return f'{update.message.from_user.first_name}, you have successfully registered!'
+    
+
+
+
+
 
     return 'I don\'t understand'
 
